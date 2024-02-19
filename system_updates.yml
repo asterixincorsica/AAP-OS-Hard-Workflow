@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Ensure system is up-to-date
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        state: latest
+      yum:
+        name: "*"
+        state: latest
+      become: yes
+
+    - name: Reboot system after updates (optional)
+      reboot:
+
+    # Set a fact to indicate success for conditional flow in the workflow
+    - name: Set system_updates_success
+      set_fact:
+        system_updates_success: true
