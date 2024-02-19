@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Notify admins about user account management failure
+      mail:
+        to: "admin@example.com"
+        subject: "User Account Management Failure on {{ inventory_hostname }}"
+        body: |
+          The user account management playbook on {{ inventory_hostname }} failed.
+          Please investigate and manage user accounts manually.
+
+    - name: Pause the workflow to allow manual intervention
+      pause:
+        prompt: "User account management failed. Press any key to continue or Ctrl+C to abort."
+
