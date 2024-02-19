@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Notify admins about root account hardening failure
+      mail:
+        to: "admin@example.com"
+        subject: "Root Account Hardening Failure on {{ inventory_hostname }}"
+        body: |
+          The root account hardening playbook on {{ inventory_hostname }} failed.
+          Please investigate and configure the root account manually.
+
+    - name: Pause the workflow to allow manual intervention
+      pause:
+        prompt: "Root account hardening failed. Press any key to continue or Ctrl+C to abort."
+
