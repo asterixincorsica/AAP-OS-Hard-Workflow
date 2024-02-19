@@ -1,0 +1,25 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Disable root login via SSH
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        line: PermitRootLogin no
+        create: yes
+        state: present
+      become: yes
+
+    - name: Set strong root password (use Ansible Vault securely)
+      file:
+        path: /etc/shadow
+        owner: root
+        group: root
+        mode: 0400
+        state: present
+        src: "{{ lookup('vault', 'root_password_hash') }}"
+      become: yes
+
+    - name: Set fact to indicate success for conditional flow
+      set_fact:
+        root_account_success: true
