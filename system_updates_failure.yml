@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Notify admins about system updates failure
+      mail:
+        to: "admin@example.com"
+        subject: "System Updates Failure on {{ inventory_hostname }}"
+        body: |
+          The system updates playbook on {{ inventory_hostname }} failed.
+          Please investigate and retry the updates manually.
+
+    - name: Pause the workflow to allow manual intervention
+      pause:
+        prompt: "System updates failed. Press any key to continue or Ctrl+C to abort."
