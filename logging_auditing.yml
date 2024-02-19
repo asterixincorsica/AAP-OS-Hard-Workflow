@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Increase log file sizes and retention
+      logrotate:
+        path: /var/log/*
+        size: 10M
+        count: 7
+        compress: gzip
+        missingok: yes
+        create: yes
+      become: yes
