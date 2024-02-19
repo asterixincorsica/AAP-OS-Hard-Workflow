@@ -1,0 +1,45 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Remove unnecessary user accounts
+      user:
+        name: "{{ item }}"
+        state: absent
+      with_items:
+        - ftp
+        - guest
+        - nobody
+      become: yes
+
+    - name: Set strong passwords for all users
+      set_fact:
+        password: "{{ lookup('password', 'min_length=12 special_chars=True numbers=True uppercase=True lowercase=True') }}"
+
+    - name: Update user passwords securely
+      command: echo "{{ password }}" | passwd --stdin {{ item }}
+      with_items:
+        - "{{ lookup('user', 'system=False') }}"
+      become: yes
+
+    - name: Enforce user home directory permissions
+      file:
+        path: /home/{{ item }}
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        mode: 0750
+      with_items:
+        - "{{ lookup('user', 'system=False') }}"
+      become: yes
+
+    - name: Set umask for all users
+      lineinfile:
+        path: /etc/profile
+        line: 'umask 027'
+        create: yes
+        state: present
+      become: yes
+
+    - name: Set fact to indicate success for conditional flow
+      set_fact:
+        user_accounts_success: true
