@@ -1,0 +1,32 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Configure firewall (adapt based on requirements)
+      firewalld:
+        service: ssh
+        port: 22
+        state: enabled
+        permanent: yes
+      become: yes
+
+    - name: Disable unused network interfaces
+      netdevice:
+        name: "{{ item }}"
+        state: down
+      with_items:
+        - "{{ lookup('netdevice', type='inactive') }}"
+      become: yes
+
+    # Optional: Disable IPv6 if not required
+    - name: Disable IPv6
+      sysctl:
+        name: net.ipv6.conf.all.disable_ipv6
+        value: 1
+        state: present
+        sysctl_reboot: yes
+      become: yes
+
+    - name: Set fact to indicate success for conditional flow
+      set_fact:
+        network_security_success: true
